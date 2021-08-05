@@ -16,8 +16,8 @@ request_gpus = 1
 +GPUJobLength = "short"
 
 request_cpus = 1
-request_memory = 16GB
-request_disk = 20GB
+request_memory = 32GB
+request_disk = 32GB
 
 log = $(Cluster)_$(Process).log
 error = $(Cluster)_$(Process).err
