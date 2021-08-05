@@ -305,7 +305,7 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
 
 
 if __name__ == '__main__':
-    n = 60
+    n = 100
     T = 5
     n_diag = 5
     sigma2 = 0.5
