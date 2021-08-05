@@ -225,10 +225,10 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
         temp1 = torch.sparse.FloatTensor(i, v * rho, torch.Size(shape)).to(device)
 
         temp2 = torch.sparse_coo_tensor(indices=torch.stack([torch.arange(N), torch.arange(N)]), values=torch.ones(N) * gamma,
-                                size=[N, N])
+                                size=[N, N]).to(device)
 
         R = temp1 + temp2
-        temp3 = torch.sparse.FloatTensor(i, v * Lambda, torch.Size(shape))
+        temp3 = torch.sparse.FloatTensor(i, v * Lambda, torch.Size(shape)).to(device)
         #S = I_N - Lambda * W
         S = I_N - temp3
         #R2 = R @ R
