@@ -191,8 +191,8 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
     values = W.data
     indices = np.vstack((W.row, W.col))
 
-    i = torch.LongTensor(indices)
-    v = torch.FloatTensor(values)
+    i = torch.LongTensor(indices).to(device)
+    v = torch.FloatTensor(values).to(device)
     shape = W.shape
 
     W = torch.sparse.FloatTensor(i, v, torch.Size(shape)).to(device)
