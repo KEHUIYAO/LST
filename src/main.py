@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-from sim_data import sim_data
 from sklearn.linear_model import LinearRegression
 import time
 
@@ -8,6 +7,88 @@ import numpy as np
 import scipy
 from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
+
+
+
+def sim_data(beta:np.ndarray, theta:np.ndarray, sigma2:float, W:np.ndarray, Q:np.ndarray, Q_f:np.ndarray, d: np.ndarray, d_f:np.ndarray, Iw:bool, T:int, X:np.ndarray = None) -> (np.ndarray,np.ndarray):
+    """
+      Function for simulating data
+
+
+
+      Parameters
+      ----------
+      Q: ndarray
+            the matrix formed by eigenvectors of small w, which has dimension n_1D**2 x n_1D**2
+
+      d: ndarray
+            the vector containing all the eigenvalues of small w, which has dimension n_1D**2
+      Iw: bool
+            if true, the spatial weight matrix W will take kron product from small w
+      X: ndarray
+            if X is given, then use X to generate Y, and will return unchanged X and simulated Y
+
+
+      Returns
+      -------
+      simulated X and Y
+
+
+      Raises
+      ------
+      ValueError
+
+      """
+
+    Lambda = theta[0]
+    gamma = theta[1]
+    rho = theta[2]
+    sigma = np.sqrt(sigma2)
+    n = W.shape[0]
+    k = len(beta)
+
+    if X is None:
+        X = np.hstack((np.ones([n*T,1]), np.random.normal(0,sigma,[n*T,1])))
+        #X = np.hstack((np.ones([n*T,1]), 0.5*np.ones([n*T,1])))
+
+
+    Y = np.zeros([n*T,1])
+    U = np.zeros([n*T,1])
+    #V = 0.1*np.ones([n*T,1])
+    V = np.random.normal(0,sigma,[n*T,1])
+
+    if Iw:
+        nw = Q.shape[0]
+        R = np.kron(np.identity(np.int(n/nw)), Q @ np.diag(rho*d+gamma) @ Q.transpose())
+        S_inv = np.kron(np.identity(np.int(n/nw)),Q @ np.diag(1/(1-Lambda*(d))) @ Q.transpose())
+    else:
+        # R = Q_f @ np.diag(rho*d_f + gamma) @ Q_f.transpose()
+        # S_inv = Q_f @ np.diag(1/(1-Lambda*d_f)) @ Q_f.transpose()
+        # use hard inverse
+        R = rho*W + gamma*np.identity(n)
+        S_inv = np.linalg.inv(np.identity(n)-Lambda*W)
+
+    V0 = np.random.normal(0,sigma,[n,1])
+    #V0 = 0.2*np.ones([n,1])
+    U0 = S_inv @ V0
+    U[:n] = S_inv @ (R @ U0 + V[:n])
+
+    for t in range(2,T+1):
+        U[(t-1)*n:n*t] = S_inv @ (R @ U[(t-2)*n:(t-1)*n] + V[(t-1)*n:n*t])
+
+    # debug
+
+
+    Y = X @ beta + U.flatten()
+
+
+
+
+
+    return X,Y
+
+
+
 
 def gen_W_exp(n_1D:int, cutoff:float) -> np.ndarray:
     """
