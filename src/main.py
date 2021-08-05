@@ -195,7 +195,7 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
     v = torch.FloatTensor(values)
     shape = W.shape
 
-    W = torch.sparse.FloatTensor(i, v, torch.Size(shape), device=device)
+    W = torch.sparse.FloatTensor(i, v, torch.Size(shape)).to(device)
 
 
     N = W.size(0)
@@ -210,7 +210,8 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
     n = Q.size(0)
     p = N / n
     I_N = torch.sparse_coo_tensor(indices=torch.stack([torch.arange(N), torch.arange(N)]), values=torch.ones(N),
-                            size=[N, N], device=device)
+                            size=[N, N]).to(device)
+
 
 
 
@@ -221,13 +222,13 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
         U = Y - X @ beta
 
 
-        temp1 = torch.sparse.FloatTensor(i, v * rho, torch.Size(shape), device=device)
+        temp1 = torch.sparse.FloatTensor(i, v * rho, torch.Size(shape)).to(device)
 
         temp2 = torch.sparse_coo_tensor(indices=torch.stack([torch.arange(N), torch.arange(N)]), values=torch.ones(N) * gamma,
-                                size=[N, N], device=device)
+                                size=[N, N])
 
         R = temp1 + temp2
-        temp3 = torch.sparse.FloatTensor(i, v * Lambda, torch.Size(shape), device=device)
+        temp3 = torch.sparse.FloatTensor(i, v * Lambda, torch.Size(shape))
         #S = I_N - Lambda * W
         S = I_N - temp3
         #R2 = R @ R
