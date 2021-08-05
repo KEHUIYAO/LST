@@ -198,6 +198,7 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
     W = torch.sparse.FloatTensor(i, v, torch.Size(shape)).to(device)
 
 
+
     N = W.size(0)
     T = np.int(Y.size(0) / N)
     NT = N * T
