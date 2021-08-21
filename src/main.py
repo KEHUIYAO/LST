@@ -239,12 +239,12 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
 
         #RS = R @ S
         RS = torch.sparse.mm(R, S)
-        A, _ =  torch.solve(R.to_dense(), S.to_dense())
-
-        A2 = A @ A
-
-
-        K_inv = - A2 + I_N
+        # A, _ =  torch.solve(R.to_dense(), S.to_dense())
+        #
+        # A2 = A @ A
+        #
+        #
+        # K_inv = - A2 + I_N
 
         SKinvS = S2 - R2
 
@@ -272,11 +272,13 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
 
         H = ell_SKS + ell_S2 + ell_R2 + ell_RS
 
-        log_det_K = -torch.logdet(K_inv)
+        #log_det_K = -torch.logdet(K_inv)
+        log_det_S = torch.logdet(S.to_dense())
+        log_det_K = 2 * log_det_S - torch.logdet((S2-R2).to_dense())
         print('log_det_K is %.4f'%log_det_K)
 
 
-        log_det_S = torch.logdet(S.to_dense())
+
         print('log_det_S is %.4f'%log_det_S)
 
 
@@ -305,7 +307,7 @@ def nloglik_banded(para, Y, X, W, Q, d, n_iter):
 
 
 if __name__ == '__main__':
-    n = 400
+    n = 20
     T = 5
     n_diag = 5
     sigma2 = 0.5
